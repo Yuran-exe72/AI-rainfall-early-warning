@@ -32,6 +32,10 @@ builder.Services.AddScoped<AI_rainfall_early_warning.ML.Services.IRainfallTraini
 builder.Services.AddScoped<AI_rainfall_early_warning.ML.Services.IRainfallForecastService,
     AI_rainfall_early_warning.ML.Services.RainfallForecastService>();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<AI_rainfall_early_warning.Application.Services.IAuditService,
+    AI_rainfall_early_warning.Infrastructure.Services.AuditService>();
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequiredLength = 6;

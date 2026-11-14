@@ -1,72 +1,71 @@
-﻿@model IEnumerable<AI_rainfall_early_warning.Domain.Entities.DataImport>
-@{
-    ViewData["Title"] = "Importações";
+﻿@{
+    ViewData["Title"] = "Dados";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h2 class="fw-bold mb-0">Importações de dados</h2>
-        <p class="text-muted small mb-0">Histórico de ficheiros processados pelo pipeline</p>
-    </div>
-    <a asp-action="Upload" class="btn btn-brand">+ Novo import</a>
-</div>
+<div class="container mt-4">
 
-@if (TempData["Success"] is string ok)
-{
-    <div class="alert alert-success alert-soft">@ok</div>
-}
+    <h2 style="color:#0f766e;">Importação de Dados</h2>
+    <p class="text-muted">Importe observações climáticas em formato CSV para as regiões de Mabote e Govuro.</p>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="stat-card">
-            <div class="stat-value">@Model.Count()</div>
-            <div class="stat-label">Importações registadas</div>
+    @if (TempData["Erro"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Erro"]</div>
+    }
+
+    @if (TempData["Sucesso"] != null)
+    {
+        <div class="alert alert-success">@TempData["Sucesso"]</div>
+    }
+
+    <!-- Cartao: Importacao de CSV -->
+    <div class="card shadow-sm mb-4" style="border-top:4px solid #0d9488;">
+        <div class="card-body">
+            <h5 class="card-title">Importar Ficheiro CSV</h5>
+            <p class="card-text text-muted">
+                Seleccione a região correspondente ao ficheiro e envie o CSV com as observações climáticas.
+            </p>
+
+            <form asp-controller="Data" asp-action="Import" method="post"
+                  enctype="multipart/form-data" class="row g-3 align-items-end">
+
+                <div class="col-md-3">
+                    <label class="form-label">Região</label>
+                    <select name="regionId" class="form-select" required>
+                        <option value="1">Govuro</option>
+                        <option value="2">Mabote</option>
+                    </select>
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label">Ficheiro CSV</label>
+                    <input type="file" name="file" class="form-control" accept=".csv" required />
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn text-white w-100" style="background:#0d9488;">
+                        Importar
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-3 text-muted small">
+                Limite de tamanho: 5 MB · Extensão permitida: .csv
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="stat-card">
-            <div class="stat-value">@Model.Sum(i => i.RowsImported).ToString("N0")</div>
-            <div class="stat-label">Linhas importadas</div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="stat-card">
-            <div class="stat-value">@Model.Sum(i => i.RowsRejected)</div>
-            <div class="stat-label">Linhas rejeitadas</div>
-        </div>
-    </div>
-</div>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover data-table mb-0">
-            <thead>
-                <tr>
-                    <th>Ficheiro</th>
-                    <th>Fonte</th>
-                    <th>Data</th>
-                    <th class="text-end">Importadas</th>
-                    <th class="text-end">Rejeitadas</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    var badgeClass = item.Source switch
-                    {
-                        "CHIRPS" => "badge-chirps",
-                        "ERA5-Land" => "badge-era5",
-                        _ => "badge-smap"
-                    };
-                    <tr>
-                        <td class="fw-semibold">@item.FileName</td>
-                        <td><span class="badge-source @badgeClass">@item.Source</span></td>
-                        <td class="text-muted">@item.ImportedAt.ToString("g")</td>
-                        <td class="text-end text-success fw-bold">@item.RowsImported.ToString("N0")</td>
-                        <td class="text-end @(item.RowsRejected > 0 ? "text-danger fw-bold" : "text-muted")">@item.RowsRejected</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <!-- Cartao: formato esperado -->
+    <div class="card shadow-sm" style="border-top:4px solid #0f766e;">
+        <div class="card-body">
+            <h5 class="card-title">Formato esperado do CSV</h5>
+            <p class="card-text text-muted mb-2">
+                O ficheiro deve conter as colunas de data, precipitação (mm), humidade do solo e temperatura (°C),
+                conforme os ficheiros gerados para o projecto.
+            </p>
+            <pre class="bg-light p-3 rounded small mb-0">date,rainfall_mm,soil_moisture,temperature_c
+2024-01-01,12.5,0.42,28.3
+2024-01-02,0.0,0.40,29.1</pre>
+        </div>
     </div>
+
 </div>

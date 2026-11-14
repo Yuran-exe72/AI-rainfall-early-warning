@@ -1,10 +1,8 @@
 ﻿using AI_rainfall_early_warning.Domain.Entities;
-using AI_rainfall_early_warning.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AI_rainfall_early_warning.Infrastructure.Data;
+namespace AI_rainfall_early_warning.Infrastructure.Identity;
 
 public static class DbInitializer
 {
@@ -12,38 +10,48 @@ public static class DbInitializer
     {
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-        var db = services.GetRequiredService<ApplicationDbContext>();
 
-        string[] roles = { "Admin", "Investigador" };
-        foreach (var role in roles)
+        // 1. Criar os dois perfis
+        foreach (var role in new[] { "Administrador", "Investigador" })
         {
             if (!await roleManager.RoleExistsAsync(role))
                 await roleManager.CreateAsync(new IdentityRole(role));
         }
 
+        // 2. Administrador (usa a MESMA password com que ja entras!)
         const string adminEmail = "admin@drought.mz";
-        const string adminPassword = "Admin@123";
-        if (await userManager.FindByEmailAsync(adminEmail) is null)
+        const string adminPassword = "Admin123"; // <- substitui pela tua
+
+        var admin = await userManager.FindByEmailAsync(adminEmail);
+        if (admin == null)
         {
-            var admin = new ApplicationUser
+            admin = new ApplicationUser
             {
                 UserName = adminEmail,
                 Email = adminEmail,
-                EmailConfirmed = true,
-                FullName = "Administrador do Sistema"
+                EmailConfirmed = true
             };
-            var result = await userManager.CreateAsync(admin, adminPassword);
-            if (result.Succeeded)
-                await userManager.AddToRoleAsync(admin, "Admin");
+            if ((await userManager.CreateAsync(admin, adminPassword)).Succeeded)
+                await userManager.AddToRoleAsync(admin, "Administrador");
+        }
+        else if (!await userManager.IsInRoleAsync(admin, "Administrador"))
+        {
+            await userManager.AddToRoleAsync(admin, "Administrador");
         }
 
-        if (!await db.Regions.AnyAsync())
+        // 3. Investigador (utilizador "normal" para demonstrar as roles)
+        const string invEmail = "Alfredo@drought.mz";
+        var inv = await userManager.FindByEmailAsync(invEmail);
+        if (inv == null)
         {
-            db.Regions.AddRange(
-                new Region { Name = "Mabote", Latitude = -23.86, Longitude = 33.74 },
-                new Region { Name = "Govuro", Latitude = -21.60, Longitude = 34.90 }
-            );
-            await db.SaveChangesAsync();
+            inv = new ApplicationUser
+            {
+                UserName = invEmail,
+                Email = invEmail,
+                EmailConfirmed = true
+            };
+            if ((await userManager.CreateAsync(inv, "Alfredo123")).Succeeded)
+                await userManager.AddToRoleAsync(inv, "Alfredo");
         }
     }
 }

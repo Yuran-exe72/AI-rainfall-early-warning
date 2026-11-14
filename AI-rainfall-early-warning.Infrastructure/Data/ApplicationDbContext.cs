@@ -10,6 +10,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
 
+    public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<Region> Regions => Set<Region>();
     public DbSet<ClimateObservation> ClimateObservations => Set<ClimateObservation>();
     public DbSet<DataImport> DataImports => Set<DataImport>();

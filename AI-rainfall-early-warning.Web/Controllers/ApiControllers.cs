@@ -1,4 +1,5 @@
-﻿using AI_rainfall_early_warning.Infrastructure.Data;
+﻿using AI_rainfall_early_warning.Application.Services;
+using AI_rainfall_early_warning.Infrastructure.Data;
 using AI_rainfall_early_warning.ML.Models;
 using AI_rainfall_early_warning.ML.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -76,12 +77,13 @@ public class ApiForecastController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
     private readonly IRainfallForecastService _forecaster;
+    private readonly IAuditService _audit;
     private readonly IWebHostEnvironment _env;
 
     public ApiForecastController(ApplicationDbContext db, IRainfallForecastService forecaster,
-        IWebHostEnvironment env)
+        IAuditService audit, IWebHostEnvironment env)
     {
-        _db = db; _forecaster = forecaster; _env = env;
+        _db = db; _forecaster = forecaster; _audit = audit; _env = env;
     }
 
     private string ModelPath => Path.Combine(_env.ContentRootPath, "App_Data", "rainfall-model.zip");
@@ -98,6 +100,7 @@ public class ApiForecastController : ControllerBase
             return NotFound(new { error = "Regiao sem dados de observacao." });
 
         var forecast = _forecaster.Forecast(history, ModelPath, 7);
+        await _audit.LogAsync("PrevisaoAPI", $"Regiao={regionId}, 7 dias");
         return Ok(new { regionId, horizonDays = 7, forecast });
     }
 

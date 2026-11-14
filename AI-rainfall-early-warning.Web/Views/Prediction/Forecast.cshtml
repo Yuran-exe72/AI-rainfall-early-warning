@@ -1,77 +1,109 @@
-﻿@model List<AI_rainfall_early_warning.ML.Models.ForecastDay>
+﻿@model AI_rainfall_early_warning.Web.Models.ForecastViewModel
 @{
-    ViewData["Title"] = "Previsão 7 dias";
+    ViewData["Title"] = "Previsão";
+    bool isAdmin = User.IsInRole("Administrador");
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h2 class="fw-bold mb-0">Previsão de 7 dias</h2>
-        <p class="text-muted small mb-0">Região: <strong>@ViewBag.SelectedName</strong> · base de dados até @(((DateTime)ViewBag.LastDataDate).ToString("dd/MM/yyyy"))</p>
-    </div>
-    <form asp-action="Forecast" method="get" class="d-flex gap-2">
-        <select name="regionId" class="form-select">
-            @foreach (var r in ViewBag.Regions)
+<div class="container mt-4">
+
+    <h2 style="color:#0f766e;">Previsão de Precipitação</h2>
+    <p class="text-muted">Treino do modelo e previsão a 7 dias para Mabote e Govuro.</p>
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.TrainMessage))
+    {
+        <div class="alert alert-success">@Model.TrainMessage</div>
+    }
+
+    <!-- Cartao 1: Treino do modelo -->
+    <div class="card shadow-sm mb-4" style="border-top:4px solid #0d9488;">
+        <div class="card-body">
+            <h5 class="card-title">Treino do Modelo</h5>
+            <p class="card-text text-muted">
+                Estado: @(Model.ModelExists ? "modelo treinado disponível" : "modelo ainda não treinado")
+            </p>
+
+            @if (Model.R2.HasValue && Model.Rmse.HasValue)
             {
-                <option value="@r.Id" selected="@(r.Id == (int)ViewBag.SelectedId)">@r.Name</option>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="p-3 rounded" style="background:#f0fdfa; border:1px solid #99f6e4;">
+                            <small class="text-muted">R² (conjunto de teste)</small>
+                            <div style="font-size:1.6rem; color:#0f766e;">@Model.R2.Value.ToString("0.000")</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="p-3 rounded" style="background:#f0fdfa; border:1px solid #99f6e4;">
+                            <small class="text-muted">RMSE (mm)</small>
+                            <div style="font-size:1.6rem; color:#0f766e;">@Model.Rmse.Value.ToString("0.00")</div>
+                        </div>
+                    </div>
+                </div>
             }
-        </select>
-        <button type="submit" class="btn btn-brand">Ver</button>
-    </form>
-</div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="stat-card">
-            <div class="stat-value">@ViewBag.Rain7Days mm</div>
-            <div class="stat-label">Chuva acumulada (últimos 7 dias)</div>
+            @if (isAdmin)
+            {
+                <form asp-action="Train" method="post">
+                    <button type="submit" class="btn text-white" style="background:#0d9488;">
+                        Treinar Modelo
+                    </button>
+                </form>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Apenas administradores podem treinar o modelo</span>
+            }
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="stat-card">
-            <div class="stat-value">@(((double?)ViewBag.SoilMoisture)?.ToString("0.00") ?? "—")</div>
-            <div class="stat-label">Humidade do solo actual</div>
+
+    <!-- Cartao 2: Previsao de 7 dias -->
+    <div class="card shadow-sm mb-4" style="border-top:4px solid #0d9488;">
+        <div class="card-body">
+            <h5 class="card-title">Previsão a 7 Dias</h5>
+
+            <form asp-action="Predict" method="post" class="row g-2 align-items-end mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Região</label>
+                    <select name="regionId" class="form-select">
+                        @foreach (var r in Model.Regions)
+                        {
+                            <option value="@r.Id" selected="@(Model.SelectedRegionId == r.Id)">@r.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn text-white w-100" style="background:#0f766e;">
+                        Prever
+                    </button>
+                </div>
+            </form>
+
+            @if (Model.Forecast != null && Model.Forecast.Count > 0)
+            {
+                <h6 class="mt-3">Previsão para @Model.SelectedRegionName — próximos 7 dias</h6>
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Precipitação prevista (mm)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (dynamic f in Model.Forecast)
+                        {
+                            <tr>
+                                <td>@f.Date.ToString("dd/MM/yyyy")</td>
+                                <td>@f.PredictedRainfallMm.ToString("0.0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="stat-card">
-            <div class="stat-value">@(((double?)ViewBag.Temperature)?.ToString("0.0") ?? "—") °C</div>
-            <div class="stat-label">Temperatura actual</div>
-        </div>
-    </div>
-</div>
 
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-hover data-table mb-0">
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th class="text-end">Chuva prevista</th>
-                    <th class="text-end">Nível de risco</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var f in Model)
-                {
-                    var badge = f.RiskLevel switch
-                    {
-                        "Normal" => "badge-risk-normal",
-                        "Atenção" => "badge-risk-atencao",
-                        "Alerta" => "badge-risk-alerta",
-                        _ => "badge-risk-emergencia"
-                    };
-                    <tr>
-                        <td class="fw-semibold">@f.Date.ToString("dd/MM/yyyy")</td>
-                        <td class="text-end">@f.PredictedRainfallMm mm</td>
-                        <td class="text-end"><span class="badge-source @badge">@f.RiskLevel</span></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
 </div>
-
-<p class="text-muted small mt-3">
-    Previsão iterativa: cada dia previsto alimenta a janela do seguinte. Humidade e temperatura
-    mantidas no último valor conhecido durante o horizonte de 7 dias.
-</p>
