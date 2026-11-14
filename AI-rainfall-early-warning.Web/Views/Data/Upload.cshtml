@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Importar CSV";
+}
+
+<h2>⬆️ Importar Ficheiro CSV</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Upload" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+            <div class="mb-3">
+                <label class="form-label">Região</label>
+                <select name="regionId" class="form-select" required>
+                    @foreach (var r in ViewBag.Regions)
+                    {
+                        <option value="@r.Id">@r.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Fonte de dados</label>
+                <select name="source" class="form-select" required>
+                    @foreach (var s in ViewBag.Sources)
+                    {
+                        <option value="@s">@s</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Ficheiro CSV</label>
+                <input type="file" name="file" class="form-control" accept=".csv" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Importar</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
