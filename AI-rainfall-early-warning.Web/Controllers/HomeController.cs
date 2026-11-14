@@ -1,9 +1,11 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using AI_rainfall_early_warning.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AI_rainfall_early_warning.Web.Controllers;
 
+[Authorize]
 public class HomeController : Controller
 {
     public IActionResult Index()
