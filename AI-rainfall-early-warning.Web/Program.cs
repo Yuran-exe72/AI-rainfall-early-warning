@@ -3,10 +3,22 @@ using AI_rainfall_early_warning.Infrastructure.Identity;
 using AI_rainfall_early_warning.ML.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "ClimaAlerta MZ API",
+        Version = "v1",
+        Description = "API REST de observacoes climaticas e previsao de precipitacao para as regioes de Mabote e Govuro, Inhambane."
+    });
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -37,10 +49,18 @@ using (var scope = app.Services.CreateScope())
     await DbInitializer.SeedAsync(services);
 }
 
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "ClimaAlerta MZ API v1");
+});
+
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
