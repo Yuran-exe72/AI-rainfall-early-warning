@@ -4,5 +4,6 @@
   <Project Path="AI-rainfall-early-warning.Infrastructure/AI-rainfall-early-warning.Infrastructure.csproj" />
   <Project Path="AI-rainfall-early-warning.ML/AI-rainfall-early-warning.ML.csproj" />
   <Project Path="AI-rainfall-early-warning.Tests/AI-rainfall-early-warning.Tests.csproj" />
+  <Project Path="AI-rainfall-early-warning.Tools.DataGenerator/AI-rainfall-early-warning.Tools.DataGenerator.csproj" />
   <Project Path="AI-rainfall-early-warning.Web/AI-rainfall-early-warning.Web.csproj" />
 </Solution>
