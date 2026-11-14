@@ -257,3 +257,20 @@ main {
     border-color: var(--brand);
     box-shadow: 0 0 0 .2rem rgba(15,118,110,.15);
 }
+
+/* ---------- Badges de risco ---------- */
+.badge-risk-normal {
+    background: #059669;
+}
+
+.badge-risk-atencao {
+    background: #ca8a04;
+}
+
+.badge-risk-alerta {
+    background: #ea580c;
+}
+
+.badge-risk-emergencia {
+    background: #dc2626;
+}

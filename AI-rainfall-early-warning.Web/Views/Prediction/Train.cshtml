@@ -1,0 +1,60 @@
+﻿@model AI_rainfall_early_warning.ML.Services.TrainingResult?
+@{
+    ViewData["Title"] = "Treinar modelo";
+}
+
+<h2 class="fw-bold mb-3">Treinar modelo de previsão</h2>
+
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-soft">@err</div>
+}
+
+@if (Model is not null)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">@Model.R2.ToString("0.00")</div>
+                <div class="stat-label">R² (teste)</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">@Model.Rmse.ToString("0.0") mm</div>
+                <div class="stat-label">RMSE (teste)</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">@Model.TrainSamples.ToString("N0")</div>
+                <div class="stat-label">Amostras de treino</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-value">@Model.TestSamples.ToString("N0")</div>
+                <div class="stat-label">Amostras de teste</div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-success alert-soft">
+        Modelo treinado e gravado em <code>App_Data/rainfall-model.zip</code> — já podes ver a previsão!
+    </div>
+}
+
+<div class="card">
+    <div class="card-header card-header-soft">Como funciona</div>
+    <div class="card-body p-4">
+        <p class="mb-3 text-muted">
+            Algoritmo <strong>Fast Forest</strong> (ML.NET) com 200 árvores. Features: mês,
+            chuva dos últimos 1/3/7 dias, soma de 7 dias, humidade do solo e temperatura.
+            O alvo é a chuva do dia seguinte. A validação usa os <strong>20% finais</strong>
+            da série (divisão temporal, sem fuga de dados do futuro).
+        </p>
+        <form asp-action="Train" method="post">
+            <button type="submit" class="btn btn-brand">Treinar agora</button>
+            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Voltar</a>
+        </form>
+    </div>
+</div>

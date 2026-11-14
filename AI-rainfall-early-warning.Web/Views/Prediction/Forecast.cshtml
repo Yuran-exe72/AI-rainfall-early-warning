@@ -1,0 +1,77 @@
+﻿@model List<AI_rainfall_early_warning.ML.Models.ForecastDay>
+@{
+    ViewData["Title"] = "Previsão 7 dias";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-bold mb-0">Previsão de 7 dias</h2>
+        <p class="text-muted small mb-0">Região: <strong>@ViewBag.SelectedName</strong> · base de dados até @(((DateTime)ViewBag.LastDataDate).ToString("dd/MM/yyyy"))</p>
+    </div>
+    <form asp-action="Forecast" method="get" class="d-flex gap-2">
+        <select name="regionId" class="form-select">
+            @foreach (var r in ViewBag.Regions)
+            {
+                <option value="@r.Id" selected="@(r.Id == (int)ViewBag.SelectedId)">@r.Name</option>
+            }
+        </select>
+        <button type="submit" class="btn btn-brand">Ver</button>
+    </form>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value">@ViewBag.Rain7Days mm</div>
+            <div class="stat-label">Chuva acumulada (últimos 7 dias)</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value">@(((double?)ViewBag.SoilMoisture)?.ToString("0.00") ?? "—")</div>
+            <div class="stat-label">Humidade do solo actual</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-value">@(((double?)ViewBag.Temperature)?.ToString("0.0") ?? "—") °C</div>
+            <div class="stat-label">Temperatura actual</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover data-table mb-0">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th class="text-end">Chuva prevista</th>
+                    <th class="text-end">Nível de risco</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model)
+                {
+                    var badge = f.RiskLevel switch
+                    {
+                        "Normal" => "badge-risk-normal",
+                        "Atenção" => "badge-risk-atencao",
+                        "Alerta" => "badge-risk-alerta",
+                        _ => "badge-risk-emergencia"
+                    };
+                    <tr>
+                        <td class="fw-semibold">@f.Date.ToString("dd/MM/yyyy")</td>
+                        <td class="text-end">@f.PredictedRainfallMm mm</td>
+                        <td class="text-end"><span class="badge-source @badge">@f.RiskLevel</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<p class="text-muted small mt-3">
+    Previsão iterativa: cada dia previsto alimenta a janela do seguinte. Humidade e temperatura
+    mantidas no último valor conhecido durante o horizonte de 7 dias.
+</p>
