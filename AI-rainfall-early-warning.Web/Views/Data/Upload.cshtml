@@ -2,36 +2,44 @@
     ViewData["Title"] = "Importar CSV";
 }
 
-<h2>⬆️ Importar Ficheiro CSV</h2>
-
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Upload" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="All" class="text-danger mb-3"></div>
-            <div class="mb-3">
-                <label class="form-label">Região</label>
-                <select name="regionId" class="form-select" required>
-                    @foreach (var r in ViewBag.Regions)
-                    {
-                        <option value="@r.Id">@r.Name</option>
-                    }
-                </select>
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h2 class="fw-bold mb-3">Importar ficheiro CSV</h2>
+        <div class="card">
+            <div class="card-header card-header-soft">Origem dos dados</div>
+            <div class="card-body p-4">
+                <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Região</label>
+                            <select name="regionId" class="form-select" required>
+                                @foreach (var r in ViewBag.Regions)
+                                {
+                                    <option value="@r.Id">@r.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Fonte de dados</label>
+                            <select name="source" class="form-select" required>
+                                @foreach (var s in ViewBag.Sources)
+                                {
+                                    <option value="@s">@s</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Ficheiro CSV</label>
+                            <input type="file" name="file" class="form-control" accept=".csv" required />
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-brand">Importar</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancelar</a>
+                    </div>
+                </form>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Fonte de dados</label>
-                <select name="source" class="form-select" required>
-                    @foreach (var s in ViewBag.Sources)
-                    {
-                        <option value="@s">@s</option>
-                    }
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Ficheiro CSV</label>
-                <input type="file" name="file" class="form-control" accept=".csv" required />
-            </div>
-            <button type="submit" class="btn btn-primary">Importar</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-        </form>
+        </div>
     </div>
 </div>

@@ -1,8 +1,77 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Início";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="hero rounded-3 mb-4">
+    <h1 class="hero-title">Monitorização climática em tempo real</h1>
+    <p class="hero-sub">
+        Sistema de alerta precoce de seca e chuvas para as regiões de <strong>Mabote</strong> e
+        <strong>Govuro</strong> (Inhambane) — dados de satélite, validação automática e análise
+        inteligente para apoiar decisões agrícolas.
+    </p>
+    <a asp-controller="Data" asp-action="Upload" class="btn btn-light btn-lg me-2">Importar dados</a>
+    <a asp-controller="Data" asp-action="Index" class="btn btn-outline-light btn-lg">Histórico</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@ViewBag.TotalObservacoes.ToString("N0")</div>
+            <div class="stat-label">Observações climáticas</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@ViewBag.TotalRegioes</div>
+            <div class="stat-label">Regiões monitorizadas</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@ViewBag.DiasMonitorizados.ToString("N0")</div>
+            <div class="stat-label">Dias de histórico</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value-sm">@ViewBag.UltimaImportacao</div>
+            <div class="stat-label">Última importação</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card feature-card h-100">
+            <div class="card-body p-4">
+                <h5 class="fw-bold">Fontes de dados</h5>
+                <p class="text-muted mb-0">
+                    Precipitação (CHIRPS), temperatura a 2 m (ERA5-Land) e humidade do solo
+                    (SMAP), no formato dos produtos satélite oficiais.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card feature-card h-100">
+            <div class="card-body p-4">
+                <h5 class="fw-bold">Pipeline de dados</h5>
+                <p class="text-muted mb-0">
+                    Validação de intervalos físicos, importação idempotente (upsert) e
+                    auditoria completa de cada ficheiro processado.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card feature-card h-100">
+            <div class="card-body p-4">
+                <h5 class="fw-bold">Previsão com IA</h5>
+                <p class="text-muted mb-0">
+                    Modelo de machine learning para antecipar períodos de seca e gerar
+                    alertas por nível de risco — módulo em desenvolvimento.
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
